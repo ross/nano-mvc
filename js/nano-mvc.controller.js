@@ -1,38 +1,30 @@
 (function () {
 
     function Controller() {
-        var subscribers = [];
+        var subscribers = $.Callbacks();
 
         // TODO: switch this out for a real pub/sub impl if/when we use one
         function subscribe(callback) {
-            subscribers.push(callback);
+            subscribers.add(callback);
         }
 
         /** Notify all of our subscribers about an event that just happened.
-         * @param: dataSource - the datasource object
-         * @param: type - the type of event that happened, the rest of the
-         * parameters will depend on the type of event.
+         * @param: controller - the controller object
+         * @param: type - the type of event that happened
          *
-         * type update:
-         *  a param change has been made and new data will be fetched
-         *      args: the new params
+         * the rest of the parameters will depend on the type of event.
+         *
+         * type working:
          * type success:
-         *  the new request has returned and data has been updated
-         *      args: the jQuery XHR object
          * type error:
-         *  the new request has returned, but data is still the old data,
-         *  check out the jqXHR object to see what happened
-         *      args: the jQuery XHR object
          */
         function publish() {
             // we'll pass along whatever args we recieved to the
             // subscribers
             var args = Array.prototype.slice.call(arguments);
-            // after adding the datasource as the first param
+            // after adding the controller as the first param
             args.unshift(this);
-            for (var i in subscribers) {
-                subscribers[i].apply(this, args);
-            }
+            subscribers.fireWith(this, args);
         }
 
         function init(model) {
