@@ -3,15 +3,18 @@
 
     function Controller() {
 
+        var id = 0;
+
         function add_sites(sites) {
             var that = this;
 
             that.send_working();
             for (var i in sites) {
                 var site = sites[i];
+                site.id = id++;
                 that.model.sites.push(site);
             }
-            // pretend like this takes time purpotional to the number of sites
+            // pretend like this takes time proportional to the number of sites
             // added
             setTimeout(function () {
                 that.send_success();
@@ -20,13 +23,17 @@
 
         function remove_last() {
             this.send_working();
-            this.model.sites.pop();
+            var site = this.model.sites.pop();
+            if (this.model.current_site && 
+                site.id === this.model.current_site.id) {
+                this.model.current_site = undefined;
+            }
             this.send_success();
         }
 
         function clear_all() {
             this.send_working();
-            this.model.sites = [];
+            this.reset();
             this.send_success();
         }
 
@@ -34,7 +41,7 @@
             var that = this;
 
             that.send_working();
-            this.model.sites = [];
+            this.reset();
             // pretend like this takes a while
             setTimeout(function () {
                 that.send_error('timeout', 
@@ -42,12 +49,39 @@
             }, 1000);
         }
 
+        function get_site_details(site_id) {
+            site_id = parseInt(site_id);
+            this.send_working();
+            var sites = this.model.sites;
+            for (var i in sites) {
+                var site = sites[i];
+                if (site.id === site_id) {
+                    if (!site.visits) {
+                        // pretend like we're making an ajax request to get
+                        // site details
+                        site.visits = Math.ceil(Math.random() * 1000);
+                    }
+                    this.model.current_site = site;
+                    break;
+                }
+            }
+            this.send_success();
+        }
+
+        function reset() {
+            this.model.sites = [];
+            this.model.current_site = undefined;
+        }
+
         var controller = nano.Controller();
         return $.extend(controller, {
             add_sites: add_sites,
             remove_last: remove_last,
             clear_all: clear_all,
-            fake_error: fake_error
+            fake_error: fake_error,
+            get_site_details: get_site_details,
+
+            reset: reset
         });
     }
 
@@ -97,12 +131,7 @@
             });
         }
 
-        function success(controller, type) {
-            $spinner.hide();
-            $control_buttons.removeAttr('disabled');
-        }
-
-        function error(controller, type) {
+        function complete(controller, type) {
             $spinner.hide();
             $control_buttons.removeAttr('disabled');
         }
@@ -115,8 +144,9 @@
         var view = nano.View();
         return $.extend(view, {
             child_init: child_init,
-            success: success,
-            error: error,
+            // we're reusing the same handler for both success and error here
+            success: complete,
+            error: complete,
             working: working
         });
     }
@@ -147,8 +177,7 @@
         }
 
         function error(controller, type) {
-            // this widget shows 0 when there's an error and turns the
-            // background red (by adding a class)
+            // because we clear everything in working, there's no need to here.
             $site_count.addClass('error').html(0);
         }
 
@@ -170,24 +199,34 @@
         
         var $site_list_ul = $('#site-list ul');
 
-        function success(controller, type) {
+        function child_init(controller) {
+            $site_list_ul.on('click', 'a', function (evt) {
+                evt.preventDefault();
+                var site_id = $(evt.target).attr('site_id');
+                controller.get_site_details(site_id);
+            });
+        }
+
+        function complete(controller, type) {
             var html = '';
             var sites = controller.model.sites;
             for (var i in sites) {
                 var site = sites[i];
-                html += '<li><a href="' + site.url + '">' + site.name + 
-                        '</a></li>';
+                html += '<li><a site_id="' + site.id + '" href="#">' + 
+                        site.name + '</a></li>';
             }
             $site_list_ul.html(html);
         }
 
         function working(controller, type) {
-            $site_list_ul.html('');
         }
 
         var view = nano.View();
         return $.extend(view, {
-            success: success,
+            child_init: child_init,
+            // in either case we'll update to match the model
+            success: complete,
+            error: complete,
             working: working
         });
     }
@@ -212,8 +251,39 @@
 
         var view = nano.View();
         return $.extend(view, {
+            // working clears us, so no need for success
             error: error,
             working: working
+        });
+    }
+
+    function SiteDetailsView() {
+        
+        var $site_details = $('#site-details');
+        var $site_name = $('#site-name');
+        var $site_url = $('#site-url');
+        var $site_visits = $('#site-visits');
+
+        function success(controller, type) {
+            var site = controller.model.current_site;
+            if (site) {
+                $site_name.html(site.name);
+                $site_url.html(site.url);
+                $site_visits.html(site.visits);
+                $site_details.show();
+            } else {
+                $site_details.hide();
+            }
+        }
+
+        function error(controller, type) {
+            $site_details.hide();
+        }
+
+        var view = nano.View();
+        return $.extend(view, {
+            success: success,
+            error: error
         });
     }
 
@@ -231,6 +301,9 @@
 
         var errorView = new ErrorView();
         errorView.init(controller);
+
+        var siteDetailsView = new SiteDetailsView();
+        siteDetailsView.init(controller);
 
         controller.init(model);
     }

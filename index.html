@@ -81,6 +81,40 @@
             <ul>
             </ul>
         </div>
+        <div id="site-details" style="display: none;">
+            <h2>Site Details</h2>
+            <table>
+                <tr>
+                    <th>
+                        Field
+                    </th>
+                    <th>
+                        Value
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        Name
+                    </td>
+                    <td id="site-name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        URL
+                    </td>
+                    <td id="site-url">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Visits
+                    </td>
+                    <td id="site-visits">
+                    </td>
+                </tr>
+            </table>
+        </div>
         <div id="error" style="display: none;">
             <div>
             </div>
@@ -92,11 +126,14 @@
         <script src="demo.js"></script>
         <script>
             "use strict";
+            // TODO: probably shouldn't pass in 'model' here
             demo.init({
                 sites: [{
+                    id: 1000000,
                     name: 'Some Site',
                     url: 'http://www.some-site.com'
                 }, {
+                    id: 1000001,
                     name: 'Another Site',
                     url: 'http://www.another-site.com'
                 }]
