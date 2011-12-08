@@ -88,6 +88,9 @@
     function ControlsView() {
         
         var $control_buttons = $('#controls button');
+        var $adding_buttons = $('#controls .adding');
+        var $removing_buttons = $('#controls .removing');
+        var $fake_error = $('#fake-error');
         var $spinner = $('#controls img');
 
         function child_init(controller) {
@@ -133,7 +136,11 @@
 
         function complete(controller, type) {
             $spinner.hide();
-            $control_buttons.removeAttr('disabled');
+            $adding_buttons.removeAttr('disabled');
+            if (controller.model.sites.length > 0) {
+                $removing_buttons.removeAttr('disabled');
+            }
+            $fake_error.removeAttr('disabled');
         }
 
         function working(controller, type) {
