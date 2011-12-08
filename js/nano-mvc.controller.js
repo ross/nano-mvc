@@ -40,7 +40,7 @@
             // initialize the model based on whatever state we have, it'll come
             // in from the page and we'll muck with it to turn those options in
             // to the mode. for now it's just a straight assignment.
-            this.model = options;
+            this.model = model;
             
             // once the model is ready we'll call success and everyone should
             // update to the current state.
@@ -48,12 +48,12 @@
         }
 
         function send_success() {
-            this.model.error = undefined;
+            this.error = undefined;
             publish.call(this, 'success');
         }
 
         function send_error(type, message) {
-            this.model.error = {
+            this.error = {
                 type: type,
                 message: message
             };

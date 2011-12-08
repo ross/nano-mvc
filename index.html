@@ -1,10 +1,106 @@
 <html>
     <head>
+        <title>NanoMvc - Demo</title>
+        <style>
+            table {
+                width: 25%;
+                border: 1px solid black;
+            }
+            table tr:nth-child(odd) {
+                background-color: #ccc;
+            }
+            table th, table td {
+                padding: 5px;
+            }
+            table td:nth-child(2) {
+                text-align: right;
+            }
+            #site-count.error {
+                background-color: #fcc;
+            }
+            #error {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 10000;
+                text-align: center;
+                padding-top: 50px;
+                color: #f66;
+            }
+        </style>
     </head>
     <body>
+        <h1>NanoMvc - Demo</h1>
+        <div id="controls">
+            <button id="add-one">Add One</button>
+            <button id="add-some">Add Some</button>
+            <button id="remove-last">Remove Last</button>
+            <button id="clear-all">Clear All</button>
+            <button id="fake-error">Fake Error</button>
+            <img src="spinner.gif" style="display: none;">
+        </div>
+        <div id="site-summary">
+            <h2>Site Summary</h2>
+            <table>
+                <tr>
+                    <th>
+                        Stat
+                    </th>
+                    <th>
+                        Value
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        Count
+                    </td>
+                    <td id="site-count">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Longest Name
+                    </td>
+                    <td id="longest-name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Longest Url
+                    </td>
+                    <td id="longest-url">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="site-list">
+            <h2>Site List</h2>
+            <ul>
+            </ul>
+        </div>
+        <div id="error" style="display: none;">
+            <div>
+            </div>
+            <button>OK</button>
+        </div>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         <script src="js/nano-mvc.controller.js"></script>
         <script src="js/nano-mvc.view.js"></script>
         <script src="demo.js"></script>
+        <script>
+            "use strict";
+            demo.init({
+                sites: [{
+                    name: 'Some Site',
+                    url: 'http://www.some-site.com'
+                }, {
+                    name: 'Another Site',
+                    url: 'http://www.another-site.com'
+                }]
+            });
+        </script>
     </body>
 </html>
